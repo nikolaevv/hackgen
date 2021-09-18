@@ -13,13 +13,21 @@ def clear_dir(path):
         except Exception as e:
             print('Failed to delete {}. Reason: {}'.format(file_path, e))
 
+def kebab_case_to_upper(text):
+    words = text.split('-')
+    result_text = ''
+
+    for word in words:
+        result_text += word.capitalize()
+    return result_text
+
 class FrontendApp:
     dependencies = [
         'react', 'react-dom', 'react-redux', 'react-router-dom', 'react-scripts',
         'redux-query', 'redux-query-interface-superagent', 'redux-query-react',
         '@material-ui/core', '@material-ui/icons', '@material-ui/core@next',
         '@testing-library/jest-dom', '@testing-library/react', '@testing-library/user-event',
-        'web-vitals', '@mui/material'
+        'web-vitals', '@mui/material', 'node-sass', 'sass', '@emotion/react', '@emotion/styled'
     ]
 
     title = 'App'
@@ -28,7 +36,7 @@ class FrontendApp:
     contrast_color = '#FFF'
     secondary_color = '#000'
     secondary_contrast_color = '#FFF'
-    components = []
+    components = ['app']
     pages = []
     models = []
     folder_name = 'frontend' 
@@ -40,13 +48,15 @@ class FrontendApp:
         self.contrast_color = contrast_color
         self.secondary_color = secondary_color
         self.secondary_contrast_color = secondary_contrast_color
-        self.components = components
+        self.components += components
         self.pages = pages
         self.models = models
 
     def generate_file(self, path, template, *variables):
         with open('./result/{}/{}'.format(self.folder_name, path), 'w') as file:
+            print(variables)
             text = template.format(*variables)
+            print(text)
             file.write(text)
 
     def init(self):
@@ -55,8 +65,88 @@ class FrontendApp:
 
     def install_dependencies(self):
         dependencies = ' '.join(self.dependencies)
-        print('cd ./result/{}; ls; npm install {}'.format(self.folder_name, dependencies))
         os.system('cd ./result/{}; ls; npm install {} --force'.format(self.folder_name, dependencies))
+
+    def create_components_folders(self):
+        for el in self.components:
+            file_path = './result/{}/src/components/{}'.format(self.folder_name, el)
+            os.system('mkdir {}'.format(file_path))
+
+    def create_components_files(self):
+        for el in self.components:
+            component_name = kebab_case_to_upper(el)
+            file_path = 'src/components/{}/{}.js'.format(el, el)
+
+            self.generate_file(
+                file_path, 
+                formatted.component, 
+                el, component_name, component_name
+            )
+
+            file_path = 'src/components/{}/{}.scss'.format(el, el)
+
+            self.generate_file(
+                file_path,
+                ''
+            )
+
+            file_path = 'src/components/{}/index.js'.format(el)
+
+            self.generate_file(
+                file_path, 
+                formatted.indexjs, 
+                component_name, el, component_name
+            )
+    
+    def create_pages(self):
+        file_path = './result/{}/src/components/pages'.format(self.folder_name)
+        os.system('mkdir {}'.format(file_path))
+
+        file_path = 'src/components/pages/main-page.js'
+
+        self.generate_file(
+            file_path, 
+            formatted.pages, 
+        )
+
+        file_path = 'src/components/pages/main-page.scss'
+
+        self.generate_file(
+            file_path,
+            ''
+        )
+
+        file_path = 'src/components/pages/index.js'
+
+        self.generate_file(
+            file_path, 
+            formatted.pagesindexjs, 
+        )
+
+    def create_app(self):
+        file_path = './result/{}/src/components/app'.format(self.folder_name)
+        os.system('mkdir {}'.format(file_path))
+
+        file_path = 'src/components/app/app.js'
+
+        self.generate_file(
+            file_path, 
+            formatted.app, 
+        )
+
+        file_path = 'src/components/app/app.scss'
+
+        self.generate_file(
+            file_path,
+            ''
+        )
+
+        file_path = 'src/components/app/index.js'
+
+        self.generate_file(
+            file_path, 
+            formatted.appindex, 
+        )
 
     def generate_app(self):
         self.init()
@@ -75,8 +165,13 @@ class FrontendApp:
 
         self.install_dependencies()
 
+        self.create_components_folders()
+        self.create_components_files()
+        self.create_pages()
+        self.create_app()
+
 if __name__ == '__main__':
-    frontendApp = FrontendApp('some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
+    frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
     frontendApp.generate_app()
 
 #clear_dir('./result/backend')

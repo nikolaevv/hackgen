@@ -30,3 +30,55 @@ indexhtml = '''<!DOCTYPE html>
   </body>
 </html>
 '''
+
+component = """import React from 'react';
+
+import './{}.scss';
+
+const {} = () => {{
+    return (
+        <div></div>
+    );
+}};
+
+export default {};"""
+
+indexjs = """import {} from './{}';
+
+export default {};"""
+
+pages = """import React from 'react';
+
+import './main-page.scss';
+
+const MainPage = () => {{
+    return (
+        <div>Hello world!</div>
+    );
+}};
+
+export default MainPage;"""
+
+pagesindexjs = """import MainPage from './main-page';
+
+export {{MainPage}};"""
+
+app = """import React from 'react';
+import {{Route}}from 'react-router';
+import {{MainPage}} from '../pages';
+
+import './app.scss';
+
+const App = () => {{
+    return (
+        <div>
+            <Route path="/" exact component={{MainPage}}/>
+        </div>
+    );
+}};
+
+export default App;"""
+
+appindex = """import App from './app';
+
+export default App;"""
