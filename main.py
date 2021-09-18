@@ -14,6 +14,14 @@ def clear_dir(path):
             print('Failed to delete {}. Reason: {}'.format(file_path, e))
 
 class FrontendApp:
+    dependencies = [
+        'react', 'react-dom', 'react-redux', 'react-router-dom', 'react-scripts',
+        'redux-query', 'redux-query-interface-superagent', 'redux-query-react',
+        '@material-ui/core', '@material-ui/icons', '@material-ui/core@next',
+        '@testing-library/jest-dom', '@testing-library/react', '@testing-library/user-event',
+        'web-vitals', '@mui/material'
+    ]
+
     title = 'App'
     theme = 'light'
     color = '#000'
@@ -45,6 +53,11 @@ class FrontendApp:
         clear_dir('./result/{}'.format(self.folder_name))
         copy_tree('./frontend-template', './result/{}'.format(self.folder_name))
 
+    def install_dependencies(self):
+        dependencies = ' '.join(self.dependencies)
+        print('cd ./result/{}; ls; npm install {}'.format(self.folder_name, dependencies))
+        os.system('cd ./result/{}; ls; npm install {} --force'.format(self.folder_name, dependencies))
+
     def generate_app(self):
         self.init()
 
@@ -59,6 +72,8 @@ class FrontendApp:
             formatted.indexhtml,
             self.title
         )
+
+        self.install_dependencies()
 
 if __name__ == '__main__':
     frontendApp = FrontendApp('some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
