@@ -170,9 +170,70 @@ class FrontendApp:
         self.create_pages()
         self.create_app()
 
+class BackendApp:
+    models = []
+    folder_name = 'backend' 
+    
+    def __init__(self, models):
+        self.models = models
+
+    def init(self):
+        clear_dir('./result/{}'.format(self.folder_name))
+        copy_tree('./backend-template', './result/{}'.format(self.folder_name))
+
+    def create_choices(self, name, choices):
+        pass
+
+    def add_to_file(self, path, text):
+        with open('./result/{}/{}'.format(self.folder_name, path), 'a') as file:
+            file.write(text)
+
+    def create_models(self):
+        for model in self.models:
+            self.add_to_file('app/models.py', text = formatted.model.format(model['title'], model['title'].lower() + 's'))
+
+            for rel in model["relations"]:
+                self.add_to_file('app/models.py', '\t{}s = relationship({})\n'.format(rel.lower(), rel))
+
+            for column in model["columns"]:
+                if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
+                    self.add_to_file('app/models.py', '\t{} = Column({}'.format(column['name'], column['type']))
+                elif column['type'] == 'enum':
+                    pass
+                elif column['type'] == 'relation':
+                    self.add_to_file('app/models.py', "\t{}_id = Column(Integer, ForeignKey('{}.id')")
+
+                if column.get('default') != None:
+                    self.add_to_file('app/models.py', ',default={}'.format(column['default']))
+                if column.get('nullable') != None:
+                    self.add_to_file('app/models.py', ',nullable={}'.format(column['nullable']))
+
+                self.add_to_file('app/models.py', ')\n')
+
+    def create_schemas(self):
+        pass
+
+    def create_CRUD_API(self):
+        pass
+
+    def build_requirements(self):
+        pass
+
+    def create_database(self):
+        pass
+
+    def generate_app(self):
+        self.init()
+        self.create_models()
+
+
 if __name__ == '__main__':
-    frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
-    frontendApp.generate_app()
+    #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
+    #frontendApp.generate_app()
+
+    models = [{"title": "User", "columns": [{"type": "Integer", "name": "age", "default": 1, "nullable": True}, {"type": "Text", "name": "name"}], "relations": ['Message']}]
+    backendApp = BackendApp(models)
+    backendApp.generate_app()
 
 #clear_dir('./result/backend')
 #copy_tree("./backend-template", "./result/backend")

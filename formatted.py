@@ -82,3 +82,7 @@ export default App;"""
 appindex = """import App from './app';
 
 export default App;"""
+
+model = '''class {}(Base):
+    __tablename__ = "{}"
+    id = Column(Integer, primary_key=True, index=True)\n'''
