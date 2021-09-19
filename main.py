@@ -67,7 +67,7 @@ class FrontendApp:
 
     def install_dependencies(self):
         dependencies = ' '.join(self.dependencies)
-        os.system('cd ./result/{}; ls; npm install {} --force'.format(self.folder_name, dependencies))
+        os.system('cd ./result/{}; npm install {} --force'.format(self.folder_name, dependencies))
 
     def create_components_folders(self):
         for el in self.components:
@@ -186,7 +186,7 @@ class BackendApp:
     def create_enum(self, name, choices):
         self.add_to_file('app/choices.py', 'class {}(enum.Enum):\n'.format(name.capitalize()))
         for choice in choices:
-            self.add_to_file('app/choices.py', '\t{} = "{}"\n'.format(choice.upper(), choice.upper()))
+            self.add_to_file('app/choices.py', '    {} = "{}"\n'.format(choice.upper(), choice.upper()))
 
     def add_to_file(self, path: str, text: str):
         with open('./result/{}/{}'.format(self.folder_name, path), 'a') as file:
@@ -208,16 +208,16 @@ class BackendApp:
             self.add_to_file('app/models.py', text = formatted.model.format(model['title'], model['title'].lower() + 's'))
 
             for rel in model["relations"]:
-                self.add_to_file('app/models.py', '\t{}s = relationship({})\n'.format(rel.lower(), rel))
+                self.add_to_file('app/models.py', '    {}s = relationship({})\n'.format(rel.lower(), rel))
 
             for column in model["columns"]:
                 if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
-                    self.add_to_file('app/models.py', '\t{} = Column({}'.format(column['name'], column['type']))
+                    self.add_to_file('app/models.py', '    {} = Column({}'.format(column['name'], column['type']))
                 elif column['type'] == 'enum':
                     self.create_enum(column['name'], column['choices'])
-                    self.add_to_file('app/models.py', "\t{} = Column(Enum({})".format(column['name'], column['name'].capitalize()))
+                    self.add_to_file('app/models.py', "    {} = Column(Enum({})".format(column['name'], column['name'].capitalize()))
                 elif column['type'] == 'relation':
-                    self.add_to_file('app/models.py', "\t{}_id = Column(Integer, ForeignKey('{}.id')".format(column['name'], column['name']))
+                    self.add_to_file('app/models.py', "    {}_id = Column(Integer, ForeignKey('{}.id')".format(column['name'], column['name']))
 
                 if column.get('default') != None:
                     self.add_to_file('app/models.py', ',default={}'.format(column['default']))
@@ -231,13 +231,13 @@ class BackendApp:
             self.add_to_file('app/schemas.py', 'class {}(BaseModel):\n'.format(model['title']))
             for column in model["columns"]:
                 if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
-                    self.add_to_file('app/schemas.py', '\t{}: {}\n'.format(column['name'], schemas_types[column['type']]))
+                    self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], schemas_types[column['type']]))
                 elif column['type'] == 'enum':
-                    self.add_to_file('app/schemas.py', '\t{}: {}\n'.format(column['name'], column['name'].capitalize()))
+                    self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], column['name'].capitalize()))
                 elif column['type'] == 'relation':
-                    self.add_to_file('app/schemas.py', "\t{}_id: int\n".format(column['name']))
+                    self.add_to_file('app/schemas.py', "    {}_id: int\n".format(column['name']))
 
-            self.add_to_file('app/schemas.py', '\n\tclass Config:\n\t\torm_mode = True\n\n')
+            self.add_to_file('app/schemas.py', '\n    class Config:\n        orm_mode = True\n\n')
 
     def create_CRUD(self):
         for model in self.models:
@@ -253,7 +253,7 @@ class BackendApp:
         pass
 
     def build_requirements(self):
-        pass
+        os.system('cd ./result/{}; pipreqs ./'.format(self.folder_name))
 
     def create_database(self):
         pass
@@ -263,6 +263,7 @@ class BackendApp:
         self.create_models()
         self.create_schemas()
         self.create_CRUD()
+        self.build_requirements()
 
 if __name__ == '__main__':
     #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
