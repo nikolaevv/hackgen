@@ -86,3 +86,26 @@ export default App;"""
 model = '''class {}(Base):
     __tablename__ = "{}"
     id = Column(Integer, primary_key=True, index=True)\n'''
+
+read_all = '''def get_{}s(db: Session):
+    return db.query(models.{}).all()
+
+'''
+
+read_by_id = '''def get_{}_by_id(db: Session, id):
+    {}s = db.query(models.{}).filter(models.{}.id == id)
+    if {}s.count() > 0:
+        return {}s.first()
+
+'''
+
+update = ''''''
+
+delete = ''''''
+
+create = '''def create_{}(db: Session, {}):
+    db_object = models.{}({})
+    db.add(db_object)
+    db.commit()
+
+'''

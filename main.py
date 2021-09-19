@@ -239,7 +239,17 @@ class BackendApp:
 
             self.add_to_file('app/schemas.py', '\n\tclass Config:\n\t\torm_mode = True\n\n')
 
-    def create_CRUD_API(self):
+    def create_CRUD(self):
+        for model in self.models:
+            lowed_model_title = model['title'].lower()
+            self.add_to_file('app/crud.py', formatted.read_all.format(lowed_model_title, model['title'].capitalize()))
+            self.add_to_file('app/crud.py', formatted.read_by_id.format(lowed_model_title, lowed_model_title, model['title'].capitalize(), model['title'].capitalize(), lowed_model_title, lowed_model_title))
+            
+            columns = [c['name'] for c in model["columns"] if c.get('default') == None and c.get('nullable') == None]
+            specified_columns = [c['name'] + '=' + c['name'] for c in model["columns"] if c.get('default') == None and c.get('nullable') == None]
+            self.add_to_file('app/crud.py', formatted.create.format(lowed_model_title, ', '.join(columns), model['title'].capitalize(), ', '.join(specified_columns)))
+    
+    def create_API(self):
         pass
 
     def build_requirements(self):
@@ -252,6 +262,7 @@ class BackendApp:
         self.init()
         self.create_models()
         self.create_schemas()
+        self.create_CRUD()
 
 if __name__ == '__main__':
     #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
