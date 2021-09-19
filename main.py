@@ -215,7 +215,7 @@ class BackendApp:
                     self.create_enum(column['name'], column['choices'])
                     self.add_to_file('app/models.py', "\t{} = Column(Enum({})".format(column['name'], column['name'].capitalize()))
                 elif column['type'] == 'relation':
-                    self.add_to_file('app/models.py', "\t{}_id = Column(Integer, ForeignKey('{}.id')")
+                    self.add_to_file('app/models.py', "\t{}_id = Column(Integer, ForeignKey('{}.id')".format(column['name'], column['name']))
 
                 if column.get('default') != None:
                     self.add_to_file('app/models.py', ',default={}'.format(column['default']))
@@ -249,6 +249,7 @@ if __name__ == '__main__':
         {"type": "Integer", "name": "age", "default": 1, "nullable": True}, 
         {"type": "Text", "name": "name"},
         {"type": "enum", "name": "role", "choices": ['AIRPORT', 'BUSINESS']},
+        {"type": "relation", "name": "cart", "nullable": True},
         ], "relations": ['Message']}]
     backendApp = BackendApp(models)
     backendApp.generate_app()
