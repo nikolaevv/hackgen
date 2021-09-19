@@ -109,3 +109,15 @@ create = '''def create_{}(db: Session, {}):
     db.commit()
 
 '''
+
+method = '''@app.{}("/api/{}", response_model={})
+def {}(db: Session = Depends(get_db)):
+    return crud.{}(db)
+
+'''
+
+method_with_id = '''@app.{}("/api/{}/{}", response_model={})
+def {}({}, db: Session = Depends(get_db)):
+    return crud.{}(db, {})
+
+'''

@@ -250,7 +250,37 @@ class BackendApp:
             self.add_to_file('app/crud.py', formatted.create.format(lowed_model_title, ', '.join(columns), model['title'].capitalize(), ', '.join(specified_columns)))
     
     def create_API(self):
-        pass
+        for model in self.models:
+            lowed_model_title = model['title'].lower()
+
+            self.add_to_file('main.py', formatted.method.format(
+                'get', 
+                '{}s'.format(lowed_model_title), 
+                'List[schemas.{}]'.format(model['title']),
+                'get_{}s'.format(lowed_model_title),
+                'get_{}s'.format(lowed_model_title)
+            ))
+
+            self.add_to_file('main.py', formatted.method_with_id.format(
+                'get', 
+                '{}s'.format(lowed_model_title),
+                '{id}',
+                'schemas.{}'.format(model['title']),
+                'get_{}'.format(lowed_model_title),
+                'id',
+                'get_{}_by_id'.format(lowed_model_title),
+                'id'
+            ))
+
+            self.add_to_file('main.py', formatted.method.format(
+                'post', 
+                '{}'.format(lowed_model_title), 
+                'None',
+                'create_{}'.format(lowed_model_title),
+                'create_{}'.format(lowed_model_title)
+            ))
+
+            
 
     def build_requirements(self):
         os.system('cd ./result/{}; pipreqs ./'.format(self.folder_name))
@@ -263,6 +293,7 @@ class BackendApp:
         self.create_models()
         self.create_schemas()
         self.create_CRUD()
+        self.create_API()
         self.build_requirements()
 
 if __name__ == '__main__':
