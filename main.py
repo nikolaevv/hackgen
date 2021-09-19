@@ -2,6 +2,8 @@ from distutils.dir_util import copy_tree
 import formatted
 import os, shutil
 
+schemas_types = {'Integer': 'int', 'DateTime': 'datetime', 'Text': 'str', 'Date': 'date', 'Float': 'floar', 'Boolean': 'bool'}
+
 def clear_dir(path):
     for filename in os.listdir(path):
         file_path = os.path.join(path, filename)
@@ -225,7 +227,17 @@ class BackendApp:
                 self.add_to_file('app/models.py', ')\n')
 
     def create_schemas(self):
-        pass
+        for model in self.models:
+            self.add_to_file('app/schemas.py', 'class {}(BaseModel):\n'.format(model['title']))
+            for column in model["columns"]:
+                if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
+                    self.add_to_file('app/schemas.py', '\t{}: {}\n'.format(column['name'], schemas_types[column['type']]))
+                elif column['type'] == 'enum':
+                    self.add_to_file('app/schemas.py', '\t{}: {}\n'.format(column['name'], column['name'].capitalize()))
+                elif column['type'] == 'relation':
+                    self.add_to_file('app/schemas.py', "\t{}_id: int\n".format(column['name']))
+
+            self.add_to_file('app/schemas.py', '\n\tclass Config:\n\t\torm_mode = True\n\n')
 
     def create_CRUD_API(self):
         pass
@@ -239,7 +251,7 @@ class BackendApp:
     def generate_app(self):
         self.init()
         self.create_models()
-
+        self.create_schemas()
 
 if __name__ == '__main__':
     #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
