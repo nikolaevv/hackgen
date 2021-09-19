@@ -181,11 +181,24 @@ class BackendApp:
         clear_dir('./result/{}'.format(self.folder_name))
         copy_tree('./backend-template', './result/{}'.format(self.folder_name))
 
-    def create_choices(self, name, choices):
-        pass
+    def create_enum(self, name, choices):
+        self.add_to_file('app/choices.py', 'class {}(enum.Enum):\n'.format(name.capitalize()))
+        for choice in choices:
+            self.add_to_file('app/choices.py', '\t{} = "{}"\n'.format(choice.upper(), choice.upper()))
 
-    def add_to_file(self, path, text):
+    def add_to_file(self, path: str, text: str):
         with open('./result/{}/{}'.format(self.folder_name, path), 'a') as file:
+            file.write(text)
+
+    def read_file(self, path: str) -> str:
+        with open('./result/{}/{}'.format(self.folder_name, path), 'r') as file:
+            return file.read()
+
+    def insert_to_file(self, path: str, text: str):
+        prev_text = self.read_file(path)
+        recent_text = text + prev_text
+
+        with open('./result/{}/{}'.format(self.folder_name, path), 'w') as file:
             file.write(text)
 
     def create_models(self):
@@ -199,7 +212,8 @@ class BackendApp:
                 if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
                     self.add_to_file('app/models.py', '\t{} = Column({}'.format(column['name'], column['type']))
                 elif column['type'] == 'enum':
-                    pass
+                    self.create_enum(column['name'], column['choices'])
+                    self.add_to_file('app/models.py', "\t{} = Column(Enum({})".format(column['name'], column['name'].capitalize()))
                 elif column['type'] == 'relation':
                     self.add_to_file('app/models.py', "\t{}_id = Column(Integer, ForeignKey('{}.id')")
 
@@ -231,7 +245,11 @@ if __name__ == '__main__':
     #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
     #frontendApp.generate_app()
 
-    models = [{"title": "User", "columns": [{"type": "Integer", "name": "age", "default": 1, "nullable": True}, {"type": "Text", "name": "name"}], "relations": ['Message']}]
+    models = [{"title": "User", "columns": [
+        {"type": "Integer", "name": "age", "default": 1, "nullable": True}, 
+        {"type": "Text", "name": "name"},
+        {"type": "enum", "name": "role", "choices": ['AIRPORT', 'BUSINESS']},
+        ], "relations": ['Message']}]
     backendApp = BackendApp(models)
     backendApp.generate_app()
 
