@@ -111,8 +111,8 @@ create = '''def create_{}(db: Session, {}):
 '''
 
 method = '''@app.{}("/api/{}", response_model={})
-def {}(db: Session = Depends(get_db)):
-    return crud.{}(db)
+def {}({}db: Session = Depends(get_db)):
+    return crud.{}(db{})
 
 '''
 
