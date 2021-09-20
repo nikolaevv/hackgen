@@ -228,7 +228,7 @@ class BackendApp:
 
     def create_schemas(self):
         for model in self.models:
-            self.add_to_file('app/schemas.py', 'class {}(BaseModel):\n'.format(model['title']))
+            self.add_to_file('app/schemas.py', 'class {}(BaseModel):\n    id: int\n'.format(model['title']))
             for column in model["columns"]:
                 if column.get('default') == None and column.get('nullable') == None:
                     if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
@@ -252,9 +252,24 @@ class BackendApp:
             lowed_model_title = model['title'].lower()
             self.add_to_file('app/crud.py', formatted.read_all.format(lowed_model_title, model['title'].capitalize()))
             self.add_to_file('app/crud.py', formatted.read_by_id.format(lowed_model_title, lowed_model_title, model['title'].capitalize(), model['title'].capitalize(), lowed_model_title, lowed_model_title))
-            
-            columns = [c['name'] for c in model["columns"] if c.get('default') == None and c.get('nullable') == None]
-            specified_columns = [c['name'] + '=' + c['name'] for c in model["columns"] if c.get('default') == None and c.get('nullable') == None]
+                        
+            columns = []
+            specified_columns = []
+
+            for c in model["columns"]:
+                if c.get('default') == None and c.get('nullable') == None:
+                    if c['type'] == 'relation':
+                        columns.append(c['name'] + '_id')
+                    else:
+                        columns.append(c['name'])
+
+            for c in model["columns"]:
+                if c.get('default') == None and c.get('nullable') == None:
+                    if c['type'] == 'relation':
+                        specified_columns.append(c['name'] + '_id=' + c['name'] + '_id')
+                    else:
+                        specified_columns.append(c['name'] + '=' + c['name'])
+
             self.add_to_file('app/crud.py', formatted.create.format(lowed_model_title, ', '.join(columns), model['title'].capitalize(), ', '.join(specified_columns)))
     
     def create_sheme(self, title, columns):
@@ -297,6 +312,14 @@ class BackendApp:
 
             self.create_sheme(model['title'], model['columns'])
 
+            required_columns = []
+            for col in model['columns']:
+                if col.get('default') == None and col.get('nullable') == None:
+                    if col['type'] == 'relation':
+                        required_columns.append('data.{}_id'.format(col['name']))
+                    else:
+                        required_columns.append('data.{}'.format(col['name']))
+
             self.add_to_file('main.py', formatted.method.format(
                 'post', 
                 '{}s'.format(lowed_model_title), 
@@ -304,7 +327,7 @@ class BackendApp:
                 'create_{}'.format(lowed_model_title),
                 'data: schemas.{}DataShema, '.format(model['title']),
                 'create_{}'.format(lowed_model_title),
-                ', data.text'
+                ', ' + ', '.join(required_columns)
             ))
 
     def build_requirements(self):
@@ -327,7 +350,7 @@ if __name__ == '__main__':
 
     models = [
         {
-            "title": "Message", "columns": [{"type": "Text", "name": "text"}, {"type": "relation", "name": "user", "nullable": True},], "relations": []
+            "title": "Message", "columns": [{"type": "Text", "name": "text"}, {"type": "relation", "name": "user"},], "relations": []
         },
 
         {"title": "User", "columns": [
