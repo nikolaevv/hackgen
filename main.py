@@ -205,7 +205,7 @@ class BackendApp:
 
     def create_models(self):
         for model in self.models:
-            self.add_to_file('app/models.py', text = formatted.model.format(model['title'], model['title'].lower() + 's'))
+            self.add_to_file('app/models.py', text = formatted.model.format(model['title'], model['title'].lower()))
 
             for rel in model["relations"]:
                 self.add_to_file('app/models.py', '    {}s = relationship({})\n'.format(rel.lower(), rel))
@@ -249,6 +249,19 @@ class BackendApp:
             specified_columns = [c['name'] + '=' + c['name'] for c in model["columns"] if c.get('default') == None and c.get('nullable') == None]
             self.add_to_file('app/crud.py', formatted.create.format(lowed_model_title, ', '.join(columns), model['title'].capitalize(), ', '.join(specified_columns)))
     
+    def create_sheme(self, title, columns):
+        self.add_to_file('app/schemas.py', 'class {}DataShema(BaseModel):\n'.format(title))
+        for column in columns:
+            if column.get('default') == None and column.get('nullable') == None:
+                if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
+                    self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], schemas_types[column['type']]))
+                elif column['type'] == 'enum':
+                    self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], column['name'].capitalize()))
+                elif column['type'] == 'relation':
+                    self.add_to_file('app/schemas.py', "    {}_id: int\n".format(column['name']))
+
+        self.add_to_file('app/schemas.py', '\n    class Config:\n        orm_mode = True\n\n')
+
     def create_API(self):
         for model in self.models:
             lowed_model_title = model['title'].lower()
@@ -258,7 +271,9 @@ class BackendApp:
                 '{}s'.format(lowed_model_title), 
                 'List[schemas.{}]'.format(model['title']),
                 'get_{}s'.format(lowed_model_title),
-                'get_{}s'.format(lowed_model_title)
+                '',
+                'get_{}s'.format(lowed_model_title),
+                ''
             ))
 
             self.add_to_file('main.py', formatted.method_with_id.format(
@@ -272,15 +287,17 @@ class BackendApp:
                 'id'
             ))
 
+            self.create_sheme(model['title'], model['columns'])
+
             self.add_to_file('main.py', formatted.method.format(
                 'post', 
-                '{}'.format(lowed_model_title), 
+                '{}s'.format(lowed_model_title), 
                 'None',
                 'create_{}'.format(lowed_model_title),
-                'create_{}'.format(lowed_model_title)
+                'data: schemas.{}DataShema, '.format(model['title']),
+                'create_{}'.format(lowed_model_title),
+                ', data.text'
             ))
-
-            
 
     def build_requirements(self):
         os.system('cd ./result/{}; pipreqs ./'.format(self.folder_name))
@@ -300,12 +317,19 @@ if __name__ == '__main__':
     #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
     #frontendApp.generate_app()
 
-    models = [{"title": "User", "columns": [
+    models = [
+        {
+            "title": "Message", "columns": [{"type": "Text", "name": "text"}, {"type": "relation", "name": "user", "nullable": True},], "relations": []
+        },
+
+        {"title": "User", "columns": [
         {"type": "Integer", "name": "age", "default": 1, "nullable": True}, 
         {"type": "Text", "name": "name"},
         {"type": "enum", "name": "role", "choices": ['AIRPORT', 'BUSINESS']},
-        {"type": "relation", "name": "cart", "nullable": True},
-        ], "relations": ['Message']}]
+        
+        ], "relations": ['Message']},
+    ]
+
     backendApp = BackendApp(models)
     backendApp.generate_app()
 
