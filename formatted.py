@@ -121,3 +121,85 @@ def {}({}, db: Session = Depends(get_db)):
     return crud.{}(db, {})
 
 '''
+
+add_action = '''const add{}s = ({}s) => {{
+    return {{
+        type: 'ADD_{}S',
+        payload: {}s
+    }}
+}};
+
+const set{} = ({}) => {{
+    return {{
+        type: 'SET_{}',
+        payload: {}
+    }}
+}};
+
+'''
+
+exportation = '''export {{
+    {}
+}}'''
+
+query_config = """const apiBase = 'http://127.0.0.1:8000';
+
+export const {}sRequest = () => {{
+    return {{
+        url: `${{apiBase}}/api/{}`,
+        transform: body => ({{
+            {}: body,
+        }}),
+        update: {{
+            {}: (prev, next) => {{
+                return next
+            }},
+        }},
+    }};
+}};
+
+export const {}Request = (id) => {{
+    return {{
+        url: `${{apiBase}}/api/{}s/${{id}}`,
+        transform: body => ({{
+            {}: body,
+        }}),
+        update: {{
+            {}: (prev, next) => {{
+                return next
+            }},
+        }},
+    }};
+}};
+  
+export const create{} = ({}s, {}, optimistic) => {{
+    const queryConfig = {{
+        url: `${{apiBase}}/api/{}s`,
+        body: {{
+            {}
+        }},
+        transform: body => ({{
+            {}s: body,
+        }}),
+        update: {{
+            {}s: (prev, next) => {{
+                return next;
+            }},
+        }},
+        options: {{
+            method: 'POST'
+        }}
+    }};
+
+    if (optimistic) {{
+        queryConfig.optimisticUpdate = {{
+            {}s: () => {}s,
+        }};
+    }}
+
+    return queryConfig;
+}};
+
+"""
+
+selectors = ''''''

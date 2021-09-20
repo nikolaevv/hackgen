@@ -61,6 +61,10 @@ class FrontendApp:
             print(text)
             file.write(text)
 
+    def add_to_file(self, path: str, text: str):
+        with open('./result/{}/{}'.format(self.folder_name, path), 'a') as file:
+            file.write(text)
+
     def init(self):
         clear_dir('./result/{}'.format(self.folder_name))
         copy_tree('./frontend-template', './result/{}'.format(self.folder_name))
@@ -150,6 +154,60 @@ class FrontendApp:
             formatted.appindex, 
         )
 
+    def create_actions(self):
+        for model in self.models:
+            self.add_to_file('src/actions/index.js', formatted.add_action.format(
+                model['title'],
+                model['title'].lower(),
+                model['title'].upper(),
+                model['title'].lower(),
+                model['title'],
+                model['title'].lower(),
+                model['title'].upper(),
+                model['title'].lower(),
+            ))
+        
+        action_names = ['add{}s'.format(model['title']) for model in self.models] + ['set{}'.format(model['title']) for model in self.models]
+        self.add_to_file('src/actions/index.js', formatted.exportation.format(', '.join(action_names)))
+
+    def create_query_config(self):
+        for model in self.models:
+            required_args = [
+                column['name'] 
+                for column in model['columns'] 
+                if column.get('default') != None or column.get('nullable') != None
+            ]
+
+            self.add_to_file('src/query-configs/{}s.js'.format(model['title'].lower()), formatted.query_config.format(
+                model['title'].lower(),
+                model['title'].lower(),
+                model['title'].lower(),
+                model['title'].lower(),
+
+                model['title'].lower(),
+                model['title'].lower(),
+                model['title'].lower(),
+                model['title'].lower(),
+
+                model['title'].capitalize(),
+                model['title'].lower(),
+                ', '.join(required_args),
+                model['title'].lower(),
+                ', '.join(required_args),
+                
+                model['title'].lower(),
+                model['title'].lower(),
+
+                model['title'].lower(),
+                model['title'].lower(),
+            ))
+                    
+    def create_reducers(self):
+        pass
+
+    def create_selectors(self):
+        pass
+
     def generate_app(self):
         self.init()
 
@@ -165,12 +223,18 @@ class FrontendApp:
             self.title
         )
 
-        self.install_dependencies()
+        #self.install_dependencies()
 
         self.create_components_folders()
         self.create_components_files()
         self.create_pages()
         self.create_app()
+
+        self.create_actions()
+        self.create_query_config()
+        
+        self.create_selectors()
+        self.create_reducers()
 
 class BackendApp:
     models = []
@@ -345,9 +409,6 @@ class BackendApp:
         self.build_requirements()
 
 if __name__ == '__main__':
-    #frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], [])
-    #frontendApp.generate_app()
-
     models = [
         {
             "title": "Message", "columns": [{"type": "Text", "name": "text"}, {"type": "relation", "name": "user"},], "relations": []
@@ -361,8 +422,11 @@ if __name__ == '__main__':
         ], "relations": ['Message']},
     ]
 
-    backendApp = BackendApp(models)
-    backendApp.generate_app()
+    frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], models)
+    frontendApp.generate_app()
+
+    #backendApp = BackendApp(models)
+    #backendApp.generate_app()
 
 #clear_dir('./result/backend')
 #copy_tree("./backend-template", "./result/backend")
