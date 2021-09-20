@@ -29,3 +29,22 @@ def get_db():
     finally:
         db.close()
 
+
+def authorize(token: str, db: Session = Depends(get_db), model, role: str = 'ALL', id: int = None) -> bool:
+    if token:
+        access_token = token.split('Bearer ')[-1]
+        suitable_users = db.query(models.User).filter(model.access_token == access_token)
+        if suitable_users.count() > 0:
+            suitable_user = suitable_users.first()
+            if (role == 'ALL' or suitable_user.role.value == role) or (suitable_user.business_id == id):
+                return suitable_user
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid authentication credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+def authorize_user(token: str, db: Session = Depends(get_db), model, role: str = 'ALL', id: int = None) -> bool:
+    return authorize(token, db, model, role, id)
+
