@@ -230,12 +230,20 @@ class BackendApp:
         for model in self.models:
             self.add_to_file('app/schemas.py', 'class {}(BaseModel):\n'.format(model['title']))
             for column in model["columns"]:
-                if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
-                    self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], schemas_types[column['type']]))
-                elif column['type'] == 'enum':
-                    self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], column['name'].capitalize()))
-                elif column['type'] == 'relation':
-                    self.add_to_file('app/schemas.py', "    {}_id: int\n".format(column['name']))
+                if column.get('default') == None and column.get('nullable') == None:
+                    if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
+                        self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], schemas_types[column['type']]))
+                    elif column['type'] == 'enum':
+                        self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], column['name'].capitalize()))
+                    elif column['type'] == 'relation':
+                        self.add_to_file('app/schemas.py', "    {}_id: int\n".format(column['name']))
+                else:
+                    if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
+                        self.add_to_file('app/schemas.py', '    {}: Optional[{}]\n'.format(column['name'], schemas_types[column['type']]))
+                    elif column['type'] == 'enum':
+                        self.add_to_file('app/schemas.py', '    {}: Optional[{}]\n'.format(column['name'], column['name'].capitalize()))
+                    elif column['type'] == 'relation':
+                        self.add_to_file('app/schemas.py', "    {}_id: Optional[int]\n".format(column['name']))
 
             self.add_to_file('app/schemas.py', '\n    class Config:\n        orm_mode = True\n\n')
 
