@@ -202,4 +202,5 @@ export const create{} = ({}s, {}, optimistic) => {{
 
 """
 
-selectors = ''''''
+selectors = '''export const get{}s = state => state.entities.{}s || [];
+export const get{} = state => state.entities.{} || null;'''

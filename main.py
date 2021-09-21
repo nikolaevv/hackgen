@@ -206,7 +206,13 @@ class FrontendApp:
         pass
 
     def create_selectors(self):
-        pass
+        for model in self.models:
+            self.add_to_file('src/selectors/{}s.js'.format(model['title'].lower()), formatted.selectors.format(
+                model['title'],
+                model['title'].lower(),
+                model['title'],
+                model['title'].lower(),
+            ))
 
     def generate_app(self):
         self.init()
