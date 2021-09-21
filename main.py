@@ -230,6 +230,9 @@ class FrontendApp:
                 model['title'].lower(),
             ))
 
+    def delete_node_modules(self):
+        shutil.rmtree('./result/{}/node_modules'.format(self.folder_name))
+
     def generate_app(self):
         self.init()
 
@@ -246,6 +249,7 @@ class FrontendApp:
         )
 
         self.install_dependencies()
+        self.delete_node_modules()
 
         self.create_components_folders()
         self.create_components_files()
