@@ -203,7 +203,23 @@ class FrontendApp:
             ))
                     
     def create_reducers(self):
-        pass
+        initial_states = []
+        reducer_cases = []
+
+        for model in self.models:
+            initial_states.append(formatted.refucer_initial_state.format(model['title'].lower(), model['title'].lower()))
+
+            reducer_cases.append(formatted.reducer_case.format(
+                model['title'].upper(),
+                model['title'].lower(),
+                model['title'].upper(),
+                model['title'].lower(),
+            ))
+        
+        self.add_to_file('src/reducers/index.js', formatted.reducer.format(
+            ''.join(initial_states),
+            ''.join(reducer_cases)
+        ))
 
     def create_selectors(self):
         for model in self.models:
@@ -229,7 +245,7 @@ class FrontendApp:
             self.title
         )
 
-        #self.install_dependencies()
+        self.install_dependencies()
 
         self.create_components_folders()
         self.create_components_files()
@@ -238,7 +254,6 @@ class FrontendApp:
 
         self.create_actions()
         self.create_query_config()
-        
         self.create_selectors()
         self.create_reducers()
 

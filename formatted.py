@@ -204,3 +204,34 @@ export const create{} = ({}s, {}, optimistic) => {{
 
 selectors = '''export const get{}s = state => state.entities.{}s || [];
 export const get{} = state => state.entities.{} || null;'''
+
+reducer_case = '''
+        case 'ADD_{}S':
+            return {{
+                ...state,
+                {}s: action.payload
+            }};
+        case 'SET_{}':
+            return {{
+                ...state,
+                {}: action.payload
+            }};'''
+
+refucer_initial_state = '''    {}s: [],
+    {}: null,
+'''
+
+reducer = '''const initialState = {{
+{}
+}}
+
+const reducer = (state = initialState, action) => {{
+    switch (action.type) {{
+        {}
+
+        default:
+            return state;
+    }}
+}};
+
+export default reducer;'''
