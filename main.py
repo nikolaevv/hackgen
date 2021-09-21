@@ -1,6 +1,8 @@
 from distutils.dir_util import copy_tree
 import formatted
-import os, shutil
+import zipfile
+import os
+import shutil
 
 schemas_types = {'Integer': 'int', 'DateTime': 'datetime', 'Text': 'str', 'Date': 'date', 'Float': 'floar', 'Boolean': 'bool'}
 
@@ -248,8 +250,8 @@ class FrontendApp:
             self.title
         )
 
-        self.install_dependencies()
-        self.delete_node_modules()
+        #self.install_dependencies()
+        #self.delete_node_modules()
 
         self.create_components_folders()
         self.create_components_files()
@@ -433,6 +435,11 @@ class BackendApp:
         self.create_API()
         self.build_requirements()
 
+def compress_to_archive(path):
+    result_zip = zipfile.ZipFile('{}/result.zip'.format(path), 'w')
+    result_zip.write('{}/result'.format(path), compress_type=zipfile)
+    result_zip.close()
+
 if __name__ == '__main__':
     models = [
         {
@@ -449,6 +456,8 @@ if __name__ == '__main__':
 
     frontendApp = FrontendApp('Some App', 'light', '#2c3e50', '#FFF', '#bdc3c7', '#2c3e50', [], [], models)
     frontendApp.generate_app()
+
+    compress_to_archive('.')
 
     #backendApp = BackendApp(models)
     #backendApp.generate_app()
