@@ -176,8 +176,8 @@ class FrontendApp:
         for model in self.models:
             required_args = [
                 column['name'] 
-                for column in model['columns'] 
-                if column.get('default') != None or column.get('nullable') != None
+                for column in model['fields'] 
+                if column.get('default') != '' or column.get('nullable') != ''
             ]
 
             self.add_to_file('src/query-configs/{}s.js'.format(model['title'].lower()), formatted.query_config.format(
@@ -301,18 +301,18 @@ class BackendApp:
             for rel in model["relations"]:
                 self.add_to_file('app/models.py', '    {}s = relationship({})\n'.format(rel.lower(), rel))
 
-            for column in model["columns"]:
-                if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
+            for column in model["fields"]:
+                if column['type'].name in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
                     self.add_to_file('app/models.py', '    {} = Column({}'.format(column['name'], column['type']))
-                elif column['type'] == 'enum':
+                elif column['type'].name == 'enum':
                     self.create_enum(column['name'], column['choices'])
                     self.add_to_file('app/models.py', "    {} = Column(Enum({})".format(column['name'], column['name'].capitalize()))
-                elif column['type'] == 'relation':
+                elif column['type'].name == 'relation':
                     self.add_to_file('app/models.py', "    {}_id = Column(Integer, ForeignKey('{}.id')".format(column['name'], column['name']))
 
-                if column.get('default') != None:
+                if column.get('default') != '':
                     self.add_to_file('app/models.py', ',default={}'.format(column['default']))
-                if column.get('nullable') != None:
+                if column.get('nullable') != '':
                     self.add_to_file('app/models.py', ',nullable={}'.format(column['nullable']))
 
                 self.add_to_file('app/models.py', ')\n')
@@ -320,8 +320,8 @@ class BackendApp:
     def create_schemas(self):
         for model in self.models:
             self.add_to_file('app/schemas.py', 'class {}(BaseModel):\n    id: int\n'.format(model['title']))
-            for column in model["columns"]:
-                if column.get('default') == None and column.get('nullable') == None:
+            for column in model["fields"]:
+                if column.get('default') == '' and column.get('nullable') == '':
                     if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
                         self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], schemas_types[column['type']]))
                     elif column['type'] == 'enum':
@@ -347,15 +347,15 @@ class BackendApp:
             columns = []
             specified_columns = []
 
-            for c in model["columns"]:
-                if c.get('default') == None and c.get('nullable') == None:
+            for c in model["fields"]:
+                if c.get('default') == '' and c.get('nullable') == '':
                     if c['type'] == 'relation':
                         columns.append(c['name'] + '_id')
                     else:
                         columns.append(c['name'])
 
-            for c in model["columns"]:
-                if c.get('default') == None and c.get('nullable') == None:
+            for c in model["fields"]:
+                if c.get('default') == '' and c.get('nullable') == '':
                     if c['type'] == 'relation':
                         specified_columns.append(c['name'] + '_id=' + c['name'] + '_id')
                     else:
@@ -366,7 +366,7 @@ class BackendApp:
     def create_sheme(self, title, columns):
         self.add_to_file('app/schemas.py', 'class {}DataShema(BaseModel):\n'.format(title))
         for column in columns:
-            if column.get('default') == None and column.get('nullable') == None:
+            if column.get('default') == '' and column.get('nullable') == '':
                 if column['type'] in ('Integer', 'DateTime', 'Text', 'Date', 'Float', 'Boolean'):
                     self.add_to_file('app/schemas.py', '    {}: {}\n'.format(column['name'], schemas_types[column['type']]))
                 elif column['type'] == 'enum':
@@ -401,11 +401,11 @@ class BackendApp:
                 'id'
             ))
 
-            self.create_sheme(model['title'], model['columns'])
+            self.create_sheme(model['title'], model['fields'])
 
             required_columns = []
-            for col in model['columns']:
-                if col.get('default') == None and col.get('nullable') == None:
+            for col in model['fields']:
+                if col.get('default') == '' and col.get('nullable') == '':
                     if col['type'] == 'relation':
                         required_columns.append('data.{}_id'.format(col['name']))
                     else:
@@ -443,10 +443,10 @@ def compress_to_archive(path):
 if __name__ == '__main__':
     models = [
         {
-            "title": "Message", "columns": [{"type": "Text", "name": "text"}, {"type": "relation", "name": "user"},], "relations": []
+            "title": "Message", "fields": [{"type": "Text", "name": "text"}, {"type": "relation", "name": "user"},], "relations": []
         },
 
-        {"title": "User", "columns": [
+        {"title": "User", "fields": [
         {"type": "Integer", "name": "age", "default": 1, "nullable": True}, 
         {"type": "Text", "name": "name"},
         {"type": "enum", "name": "role", "choices": ['AIRPORT', 'BUSINESS']},

@@ -30,7 +30,7 @@ def get_db():
         db.close()
 
 
-def authorize(token: str, db: Session = Depends(get_db), model, role: str = 'ALL', id: int = None) -> bool:
+def authorize(token: str, model, role: str = 'ALL', id: int = None, db: Session = Depends(get_db)) -> bool:
     if token:
         access_token = token.split('Bearer ')[-1]
         suitable_users = db.query(models.User).filter(model.access_token == access_token)
@@ -45,6 +45,6 @@ def authorize(token: str, db: Session = Depends(get_db), model, role: str = 'ALL
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-def authorize_user(token: str, db: Session = Depends(get_db), model, role: str = 'ALL', id: int = None) -> bool:
+def authorize_user(token: str, model, role: str = 'ALL', id: int = None, db: Session = Depends(get_db)) -> bool:
     return authorize(token, db, model, role, id)
 
