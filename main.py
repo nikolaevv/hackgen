@@ -45,7 +45,7 @@ class FrontendApp:
     models = []
     folder_name = 'frontend' 
 
-    def __init__(self, title: str, theme: str, color: str, secondary_color: str, secondary_contrast_color: str, contrast_color: str, components: list, pages: list, models: list):
+    def __init__(self, title: str, theme: str, color: str, secondary_color: str, secondary_contrast_color: str, contrast_color: str, components: list, pages: list, models: list, id: int):
         self.title = title
         self.theme = theme
         self.color = color
@@ -55,29 +55,30 @@ class FrontendApp:
         self.components += components
         self.pages = pages
         self.models = models
+        self.id = id
 
     def generate_file(self, path, template, *variables):
-        with open('./result/{}/{}'.format(self.folder_name, path), 'w') as file:
+        with open('./result/{}/{}/{}'.format(self.id, self.folder_name, path), 'w') as file:
             print(variables)
             text = template.format(*variables)
             print(text)
             file.write(text)
 
     def add_to_file(self, path: str, text: str):
-        with open('./result/{}/{}'.format(self.folder_name, path), 'a') as file:
+        with open('./result/{}/{}/{}'.format(self.id, self.folder_name, path), 'a') as file:
             file.write(text)
 
     def init(self):
-        clear_dir('./result/{}'.format(self.folder_name))
-        copy_tree('./frontend-template', './result/{}'.format(self.folder_name))
+        clear_dir('./result/{}/{}'.format(self.id, self.folder_name))
+        copy_tree('./frontend-template', './result/{}/{}'.format(self.id, self.folder_name))
 
     def install_dependencies(self):
         dependencies = ' '.join(self.dependencies)
-        os.system('cd ./result/{}; npm install {} --force'.format(self.folder_name, dependencies))
+        os.system('cd ./result/{}/{}; npm install {} --force'.format(self.id, self.folder_name, dependencies))
 
     def create_components_folders(self):
         for el in self.components:
-            file_path = './result/{}/src/components/{}'.format(self.folder_name, el)
+            file_path = './result/{}/{}/src/components/{}'.format(self.id, self.folder_name, el)
             os.system('mkdir {}'.format(file_path))
 
     def create_components_files(self):
@@ -107,7 +108,7 @@ class FrontendApp:
             )
     
     def create_pages(self):
-        file_path = './result/{}/src/components/pages'.format(self.folder_name)
+        file_path = './result/{}/{}/src/components/pages'.format(self.id, self.folder_name)
         os.system('mkdir {}'.format(file_path))
 
         file_path = 'src/components/pages/main-page.js'
@@ -132,7 +133,7 @@ class FrontendApp:
         )
 
     def create_app(self):
-        file_path = './result/{}/src/components/app'.format(self.folder_name)
+        file_path = './result/{}/{}/src/components/app'.format(self.id, self.folder_name)
         os.system('mkdir {}'.format(file_path))
 
         file_path = 'src/components/app/app.js'
@@ -233,7 +234,7 @@ class FrontendApp:
             ))
 
     def delete_node_modules(self):
-        shutil.rmtree('./result/{}/node_modules'.format(self.folder_name))
+        shutil.rmtree('./result/{}/{}/node_modules'.format(self.id, self.folder_name))
 
     def generate_app(self):
         self.init()
@@ -267,12 +268,13 @@ class BackendApp:
     models = []
     folder_name = 'backend' 
     
-    def __init__(self, models):
+    def __init__(self, models, id):
         self.models = models
+        self.id = id
 
     def init(self):
-        clear_dir('./result/{}'.format(self.folder_name))
-        copy_tree('./backend-template', './result/{}'.format(self.folder_name))
+        clear_dir('./result/{}/{}'.format(self.id, self.folder_name))
+        copy_tree('./backend-template', './result/{}/{}'.format(self.id, self.folder_name))
 
     def create_enum(self, name, choices):
         self.add_to_file('app/choices.py', 'class {}(enum.Enum):\n'.format(name.capitalize()))
@@ -280,18 +282,18 @@ class BackendApp:
             self.add_to_file('app/choices.py', '    {} = "{}"\n'.format(choice.upper(), choice.upper()))
 
     def add_to_file(self, path: str, text: str):
-        with open('./result/{}/{}'.format(self.folder_name, path), 'a') as file:
+        with open('./result/{}/{}/{}'.format(self.id, self.folder_name, path), 'a') as file:
             file.write(text)
 
     def read_file(self, path: str) -> str:
-        with open('./result/{}/{}'.format(self.folder_name, path), 'r') as file:
+        with open('./result/{}/{}/{}'.format(self.id, self.folder_name, path), 'r') as file:
             return file.read()
 
     def insert_to_file(self, path: str, text: str):
         prev_text = self.read_file(path)
         recent_text = text + prev_text
 
-        with open('./result/{}/{}'.format(self.folder_name, path), 'w') as file:
+        with open('./result/{}/{}/{}'.format(self.id, self.folder_name, path), 'w') as file:
             file.write(text)
 
     def create_models(self):
@@ -422,7 +424,7 @@ class BackendApp:
             ))
 
     def build_requirements(self):
-        os.system('cd ./result/{}; pipreqs ./'.format(self.folder_name))
+        os.system('cd ./result/{}/{}; pipreqs ./'.format(self.id, self.folder_name))
 
     def create_database(self):
         pass
@@ -435,9 +437,15 @@ class BackendApp:
         self.create_API()
         self.build_requirements()
 
-def compress_to_archive(path):
-    result_zip = zipfile.ZipFile('{}/result.zip'.format(path), 'w')
-    result_zip.write('{}/result'.format(path), compress_type=zipfile)
+def compress_to_archive(path, id):
+    result_zip = zipfile.ZipFile('{}/archives/{}.zip'.format(path, id), 'w')
+    #result_zip.write('{}/result'.format(path), compress_type=zipfile)
+    #result_zip.close()
+
+    for root, dirs, files in os.walk('{}/result/{}'.format(path, id)):
+        for file in files:
+            result_zip.write(os.path.join(root,file))
+    
     result_zip.close()
 
 if __name__ == '__main__':
