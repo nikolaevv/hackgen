@@ -4,7 +4,7 @@ import zipfile
 import os
 import shutil
 
-schemas_types = {'Integer': 'int', 'DateTime': 'datetime', 'Text': 'str', 'Date': 'date', 'Float': 'floar', 'Boolean': 'bool'}
+schemas_types = {'Integer': 'int', 'DateTime': 'datetime', 'Text': 'str', 'Date': 'date', 'Float': 'float', 'Boolean': 'bool'}
 
 def clear_dir(path):
     for filename in os.listdir(path):
