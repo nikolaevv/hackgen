@@ -14,15 +14,20 @@ class Bool(enum.Enum):
 
 class Type(enum.Enum):
     Integer = 'Integer'
-    String = 'String'
+    Text = 'Text'
     Float = 'Float'
     Boolean = 'Boolean'
+    DateTime = 'DateTime'
+    enum = 'enum'
+    Date = 'Date'
+    Relation = 'Relation'
 
 class Field(BaseModel):
     name: str
     type: Type
     nullable: bool
     default: str
+    choices: list
 
 class Model(BaseModel):
     title: str
