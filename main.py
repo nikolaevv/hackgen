@@ -251,8 +251,8 @@ class FrontendApp:
             self.title
         )
 
-        #self.install_dependencies()
-        #self.delete_node_modules()
+        self.install_dependencies()
+        self.delete_node_modules()
 
         self.create_components_folders()
         self.create_components_files()
