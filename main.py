@@ -33,7 +33,7 @@ class FrontendApp:
         'redux-query', 'redux-query-interface-superagent', 'redux-query-react',
         '@material-ui/core', '@material-ui/icons', '@material-ui/core@next',
         '@testing-library/jest-dom', '@testing-library/react', '@testing-library/user-event',
-        'web-vitals', '@mui/material', 'node-sass', 'sass', '@emotion/react', '@emotion/styled'
+        'web-vitals', '@mui/material', 'sass', '@emotion/react', '@emotion/styled'
     ]
 
     title = 'App'
