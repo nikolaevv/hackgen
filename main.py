@@ -4,6 +4,8 @@ import zipfile
 import os
 import shutil
 
+abs_path = os.path.abspath(os.getcwd())
+
 schemas_types = {'Integer': 'int', 'DateTime': 'datetime', 'Text': 'str', 'Date': 'date', 'Float': 'float', 'Boolean': 'bool'}
 
 def clear_dir(path):
@@ -40,12 +42,12 @@ class FrontendApp:
     contrast_color = '#FFF'
     secondary_color = '#000'
     secondary_contrast_color = '#FFF'
-    components = ['app']
-    pages = []
+    components = []
+    containers = []
     models = []
     folder_name = 'frontend' 
 
-    def __init__(self, title: str, theme: str, color: str, secondary_color: str, secondary_contrast_color: str, contrast_color: str, components: list, pages: list, models: list, id: int):
+    def __init__(self, title: str, theme: str, color: str, secondary_color: str, secondary_contrast_color: str, contrast_color: str, components: list, containers: list, models: list, id: int):
         self.title = title
         self.theme = theme
         self.color = color
@@ -53,7 +55,7 @@ class FrontendApp:
         self.secondary_color = secondary_color
         self.secondary_contrast_color = secondary_contrast_color
         self.components += components
-        self.pages = pages
+        self.containers = containers
         self.models = models
         self.id = id
 
@@ -74,12 +76,14 @@ class FrontendApp:
 
     def install_dependencies(self):
         dependencies = ' '.join(self.dependencies)
-        os.system('cd ./result/{}/{}; npm install {} --force'.format(self.id, self.folder_name, dependencies))
+        os.system('cd ./result/{}/{} && npm install {} --force'.format(self.id, self.folder_name, dependencies))
 
     def create_components_folders(self):
         for el in self.components:
-            file_path = './result/{}/{}/src/components/{}'.format(self.id, self.folder_name, el)
-            os.system('mkdir {}'.format(file_path))
+            file_path = '{}/result/{}/{}/src/components'.format(abs_path, self.id, self.folder_name)
+            #os.system(
+            print(file_path)
+            print(os.system('cd {} && mkdir {}'.format(file_path, el)))
 
     def create_components_files(self):
         for el in self.components:
@@ -107,50 +111,51 @@ class FrontendApp:
                 component_name, el, component_name
             )
     
-    def create_pages(self):
-        file_path = './result/{}/{}/src/components/pages'.format(self.id, self.folder_name)
-        os.system('mkdir {}'.format(file_path))
+    def create_containers_files(self):
+        for el in self.containers:
+            component_name = kebab_case_to_upper(el)
+            file_path = 'src/containers/{}/{}.js'.format(el, el)
 
-        file_path = 'src/components/pages/main-page.js'
+            self.generate_file(
+                file_path, 
+                formatted.component, 
+                el, component_name, component_name
+            )
 
-        self.generate_file(
-            file_path, 
-            formatted.pages, 
-        )
+            file_path = 'src/containers/{}/{}.scss'.format(el, el)
 
-        file_path = 'src/components/pages/main-page.scss'
+            self.generate_file(
+                file_path,
+                ''
+            )
 
-        self.generate_file(
-            file_path,
-            ''
-        )
+            file_path = 'src/containers/{}/index.js'.format(el)
 
-        file_path = 'src/components/pages/index.js'
-
-        self.generate_file(
-            file_path, 
-            formatted.pagesindexjs, 
-        )
+            self.generate_file(
+                file_path, 
+                formatted.indexjs, 
+                component_name, el, component_name
+            )
 
     def create_app(self):
-        file_path = './result/{}/{}/src/components/app'.format(self.id, self.folder_name)
+        file_path = './result/{}/{}/src/containers/app'.format(self.id, self.folder_name)
         os.system('mkdir {}'.format(file_path))
 
-        file_path = 'src/components/app/app.js'
+        file_path = 'src/containers/app/app.js'
 
         self.generate_file(
             file_path, 
             formatted.app, 
         )
 
-        file_path = 'src/components/app/app.scss'
+        file_path = 'src/containers/app/app.scss'
 
         self.generate_file(
             file_path,
             ''
         )
 
-        file_path = 'src/components/app/index.js'
+        file_path = 'src/containers/app/index.js'
 
         self.generate_file(
             file_path, 
@@ -256,7 +261,7 @@ class FrontendApp:
 
         self.create_components_folders()
         self.create_components_files()
-        self.create_pages()
+        #self.create_containers_files()
         self.create_app()
 
         self.create_actions()
@@ -424,7 +429,7 @@ class BackendApp:
             ))
 
     def build_requirements(self):
-        os.system('cd ./result/{}/{}; pipreqs ./'.format(self.id, self.folder_name))
+        os.system('cd ./result/{}/{} && pipreqs ./'.format(self.id, self.folder_name))
 
     def create_database(self):
         pass
