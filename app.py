@@ -28,8 +28,11 @@ store = redis.Redis(
     host='ec2-54-78-13-32.eu-west-1.compute.amazonaws.com', 
     port=20040,
     db=0,
-    #decode_responses=True,
-    password="pba30ec24eac04b83300212265168ef9dc958e1549174eebc1e2d04106dc07c60"
+    decode_responses=True,
+    password="pba30ec24eac04b83300212265168ef9dc958e1549174eebc1e2d04106dc07c60",
+    username="",
+    ssl=True,
+    ssl_cert_reqs=False
 )
 
 def generate_id():
