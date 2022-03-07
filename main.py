@@ -85,6 +85,12 @@ class FrontendApp:
             print(file_path)
             print(os.system('cd {} && mkdir {}'.format(file_path, el)))
 
+    def create_main_folders(self):
+        for el in ['components', 'containers', 'query-configs', 'actions', 'selectors', 'reducers']:
+            file_path = '{}/result/{}/{}/src/'.format(abs_path, self.id, self.folder_name)
+            print(file_path)
+            print(os.system('cd {} && mkdir {}'.format(file_path, el)))
+
     def create_components_files(self):
         for el in self.components:
             component_name = kebab_case_to_upper(el)
