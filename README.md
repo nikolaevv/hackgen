@@ -15,6 +15,11 @@ Why it is required service:
 - Generated code contains all needful instruments
 - It's interface is fast & beautiful
 
+## Install
+- Clone repository using `git clone https://github.com/nikolaevv/hackgen`
+- Move to this respository: `cd hackgen`
+- Run `docker-compose up` for starting docker image
+
 ## What does it generate
 - Backend
   - `models.py`

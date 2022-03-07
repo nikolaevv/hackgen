@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-store = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+store = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 def generate_id():
     id = random.randint(0, 999999999)
