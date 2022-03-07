@@ -81,9 +81,8 @@ class FrontendApp:
     def create_components_folders(self):
         for el in self.components:
             file_path = '{}/result/{}/{}/src/components'.format(abs_path, self.id, self.folder_name)
-            #os.system(
-            print(file_path)
-            print(os.system('cd {} && mkdir {}'.format(file_path, el)))
+            os.system('cd {} && mkdir {}'.format(file_path, el))
+        os.system('cd {} && mkdir {}'.format(abs_path, 'archives'))
 
     def create_main_folders(self):
         for el in ['components', 'containers', 'query-configs', 'actions', 'selectors', 'reducers']:
