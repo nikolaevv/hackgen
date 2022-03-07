@@ -250,6 +250,8 @@ class FrontendApp:
     def generate_app(self):
         self.init()
 
+        self.create_main_folders()
+
         self.generate_file(
             'src/config.js', 
             formatted.configjs,
