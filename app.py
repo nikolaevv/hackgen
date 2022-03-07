@@ -14,7 +14,7 @@ import time
 
 app = FastAPI()
 
-origins = ('http://localhost:3000', 'http://127.0.0.1:3000', 'https://hackgen.vercel.app/app/creating')
+origins = ('http://localhost:3000', 'http://127.0.0.1:3000', 'https://hackgen.vercel.app')
 
 app.add_middleware(
     CORSMiddleware,
